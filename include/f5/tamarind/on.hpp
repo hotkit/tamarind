@@ -22,7 +22,7 @@ namespace f5 {
         template<typename T>
         detail::partial<T> on(output<T> &trigger) {
             detail::partial<T> duplicate;
-            trigger.s->on_value(duplicate.s, [](auto &s, auto v) {
+            trigger.s->template on_value<T>(duplicate.s, [](auto &s, auto v) {
                 s.push(v);
             });
             return duplicate;

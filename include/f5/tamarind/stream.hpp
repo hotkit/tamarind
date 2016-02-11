@@ -71,9 +71,13 @@ namespace f5 {
                         });
                 }
 
-                template<typename P>
-                void when_value(P p, std::function<void(void)> cb) {
-                    on_value(p, [cb](auto) { cb(); });
+                template<typename Y>
+                void when_value(std::shared_ptr<stream<Y>> p, std::function<void(void)> cb) {
+                    this->template on_value<Y>(p, [cb](auto &, auto) { cb(); });
+                }
+
+                bool has_value() const {
+                    return last ? true : false;
                 }
 
                 V value(V def) {
@@ -124,7 +128,7 @@ namespace f5 {
         };
 
 
-        /// An input port
+        /// An input port (also includes the output port)
         template<typename V>
         struct input : public output<V> {
             void push(V v) {

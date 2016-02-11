@@ -1,11 +1,11 @@
 # Tamarind #
 
-Tamarind is a functional reactive programming implementation (FRP) for modern C++. It is designed for use in a number of different environments including normal C++, Boost ASIO and Emscripten.
+Tamarind is a functional reactive programming implementation (FRP) for modern C++. It is designed for use in a number of different environments including normal C++, Boost ASIO and [Emscripten](emscripten.md).
 
-Tamarind is a header only library that requires a C++14 compiler. Initial versions of the library target push only streams. Once coroutines become available then Tamarind will implement pull streams using them.
+Tamarind is a header only library that requires a C++14 compiler. Initial versions of the library target push only streams. Once coroutines become available then Tamarind will implement pull streams using them. The new "STL v2" is also relevant for pull streams.
 
 
-## Obligatory counter example ##
+## Obligatory "counter" example ##
 
 
     #include <iostream>

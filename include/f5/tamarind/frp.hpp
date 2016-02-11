@@ -9,6 +9,7 @@
 #pragma once
 
 
+#include <f5/tamarind/combine.hpp>
 #include <f5/tamarind/on.hpp>
 #include <f5/tamarind/merge.hpp>
 
