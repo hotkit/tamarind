@@ -28,6 +28,7 @@ namespace f5 {
             /// Internal implementation of the streams
             template<typename V>
             class stream {
+                std::function<bool(V)> predicate;
                 std::vector<std::function<bool(V)>> callbacks;
                 std::unique_ptr<V> last;
 
@@ -40,7 +41,23 @@ namespace f5 {
                         });
                 }
             public:
+                /// Pass a lambda that returns true if we want the value. All predicates
+                /// must pass if more than one is registered.
+                template<typename F>
+                void filter(F pred) {
+                    if ( predicate ) {
+                        predicate = [pred, old = predicate](V v) {
+                                return old(v) && pred(v);
+                            };
+                    } else {
+                        predicate = pred;
+                    }
+                }
+
                 void push(V v) {
+                    if ( predicate && not predicate(v) ) {
+                        return;
+                    }
                     if ( not last ) {
                         last = std::make_unique<V>(v);
                     } else {
@@ -156,15 +173,24 @@ namespace f5 {
             /// Used to implement parts of the DSL
             template<typename V>
             struct partial : stream_wrapper<V> {
+                /// Use a bool output to gate the setting of a value in this stream
                 partial &when(output<bool> &b) {
-                    // TODO: Implement this filter properly
+                    // TODO Close around a weak_ptr
+                    this->s->filter([condition = b.s](auto) {
+                            return condition->value(false);
+                        });
                     return *this;
                 }
+                /// Use a bool output to gate the setting of a value in this stream
                 partial &when_not(output<bool> &b) {
-                    // TODO: Implement this filter properly
+                    // TODO Close around a weak_ptr
+                    this->s->filter([condition = b.s](auto) {
+                            return not condition->value(true);
+                        };
                     return *this;
                 }
 
+                /// Set up to feed this output into the specified feed
                 template<typename T>
                 auto feeds(input<T> &b) {
                     return std::make_pair(*this, b);

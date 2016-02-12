@@ -1,2 +1,6 @@
+2016-02-12  Kirit Sælensminde  <kirit@felspar.com>
+ Implement stream filtering using `on(...).when` and `on(...).when_not`.
+ Implement binary stream merging with a transformation lambda.
+
 2016-02-11  Kirit Sælensminde  <kirit@felspar.com>
  Implement initial Emscripten bindings.
