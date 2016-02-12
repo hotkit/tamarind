@@ -30,12 +30,13 @@ namespace f5 {
         /// Duplicate a stream and perform some transformation on the values
         template<typename T, typename F>
         auto on(output<T> &trigger, F lambda) {
-            output<T> dup;
-            trigger.s->template on_value<T>(dup.s,
+            typedef decltype(lambda(T{})) V;
+            output<V> sink;
+            trigger.s->template on_value<V>(sink.s,
                 [lambda](auto &s, auto v) {
                     s.push(lambda(v));
                 });
-            return dup;
+            return sink;
         }
 
 

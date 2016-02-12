@@ -97,6 +97,15 @@ namespace f5 {
             };
 
 
+            template<typename V>
+            struct stream_wrapper {
+                std::shared_ptr<stream<V>> s;
+                stream_wrapper()
+                : s(new stream<V>) {
+                }
+            };
+
+
         }
 
 
@@ -108,6 +117,10 @@ namespace f5 {
             /// Construct an output port
             output()
             : s(new detail::stream<V>) {
+            }
+            /// Construct from an API building object
+            output(detail::stream_wrapper<V> sw)
+            : s(sw.s) {
             }
 
             void on_value(std::function<void(V)> cb) {
@@ -142,14 +155,12 @@ namespace f5 {
 
             /// Used to implement parts of the DSL
             template<typename V>
-            struct partial {
-                std::shared_ptr<stream<V>> s;
-
-                partial()
-                : s(new stream<V>) {
-                }
-
+            struct partial : stream_wrapper<V> {
                 partial &when(output<bool> &b) {
+                    // TODO: Implement this filter properly
+                    return *this;
+                }
+                partial &when_not(output<bool> &b) {
                     // TODO: Implement this filter properly
                     return *this;
                 }

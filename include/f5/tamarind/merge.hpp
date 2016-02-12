@@ -20,13 +20,27 @@ namespace f5 {
 
         /// Merge two streams of the same underlying value together
         template<typename V>
-        auto merge(output<V> s1, output<V> s2) {
-            output<V> into;
+        auto merge(output<V> &&s1, output<V> &&s2) {
+            detail::partial<V> into;
+            // We capture the streams because we need to keep them alive
             auto cb = [t1 = s1.s, t2 = s2.s](auto &s, auto v) {
                 s.push(v);
             };
             s1.s->template on_value<V>(into.s, cb);
             s2.s->template on_value<V>(into.s, cb);
+            return into;
+        }
+
+        /// Merge two streams of the same underlying value and transform the result
+        template<typename V, typename F>
+        auto merge(output<V> &s1, output<V> &s2, F lambda) {
+            typedef decltype(lambda(V{})) R;
+            detail::partial<R> into;
+            auto cb = [lambda](auto &s, auto v) {
+                s.push(lambda(v));
+            };
+            s1.s->template on_value<R>(into.s, cb);
+            s2.s->template on_value<R>(into.s, cb);
             return into;
         }
 
