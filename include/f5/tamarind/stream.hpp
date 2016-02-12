@@ -186,7 +186,7 @@ namespace f5 {
                     // TODO Close around a weak_ptr
                     this->s->filter([condition = b.s](auto) {
                             return not condition->value(true);
-                        };
+                        });
                     return *this;
                 }
 
