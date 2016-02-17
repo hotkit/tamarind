@@ -28,25 +28,26 @@ namespace f5 {
             /// Internal implementation of the streams
             template<typename V>
             class stream {
-                std::function<bool(V)> predicate;
-                std::vector<std::function<bool(V)>> callbacks;
+                std::function<bool(const V&)> predicate;
+                std::vector<std::function<bool(const V&)>> callbacks;
                 std::unique_ptr<V> last;
 
                 /// When we hold a callback we wrap it so we can determine
                 /// if we still need the callback.
-                void callback(V v) {
+                void callback(const V &v) {
                     std::remove_if(callbacks.begin(), callbacks.end(),
                         [&v](auto cb) {
                             return cb(v);
                         });
                 }
+
             public:
                 /// Pass a lambda that returns true if we want the value. All predicates
                 /// must pass if more than one is registered.
                 template<typename F>
                 void filter(F pred) {
                     if ( predicate ) {
-                        predicate = [pred, old = predicate](V v) {
+                        predicate = [pred, old = predicate](const V &v) {
                                 return old(v) && pred(v);
                             };
                     } else {
@@ -59,16 +60,16 @@ namespace f5 {
                         return;
                     }
                     if ( not last ) {
-                        last = std::make_unique<V>(v);
+                        last = std::make_unique<V>(std::move(v));
                     } else {
-                        *last = v;
+                        *last = std::move(v);
                     }
                     callback(*last);
                 }
 
                 template<typename Y>
                 void on_value(
-                    std::shared_ptr<stream<Y>> into, std::function<void(stream<Y> &, V)> cb
+                    std::shared_ptr<stream<Y>> into, std::function<void(stream<Y> &, const V&)> cb
                 ) {
                     if ( last ) {
                         cb(*into, *last);
@@ -77,7 +78,7 @@ namespace f5 {
                     /// stream reference weakly. This means that if the target
                     /// goes out of scope then the callback won't fire and
                     /// it can be cleared out of this stream's callback list.
-                    callbacks.push_back([sink = std::weak_ptr<stream<Y>>(into), cb](V v) {
+                    callbacks.push_back([sink = std::weak_ptr<stream<Y>>(into), cb](const V &v) {
                             std::shared_ptr<stream<Y>> ptr(sink.lock());
                             if ( ptr ) {
                                 cb(*ptr, v);
@@ -90,21 +91,21 @@ namespace f5 {
 
                 template<typename Y>
                 void when_value(std::shared_ptr<stream<Y>> p, std::function<void(void)> cb) {
-                    this->template on_value<Y>(p, [cb](auto &, auto) { cb(); });
+                    this->template on_value<Y>(p, [cb](auto &, const auto&) { cb(); });
                 }
 
                 bool has_value() const {
                     return last ? true : false;
                 }
 
-                V value(V def) {
+                const V &value(const V &def) {
                     if ( last ) {
                         return *last;
                     } else {
                         return def;
                     }
                 }
-                V value() {
+                const V &value() {
                     if ( last ) {
                         return *last;
                     } else {
@@ -140,7 +141,7 @@ namespace f5 {
             : s(sw.s) {
             }
 
-            void on_value(std::function<void(V)> cb) {
+            void on_value(std::function<void(const V&)> cb) {
                 s->template on_value<V>(s, [cb](auto &s, auto v) {
                         cb(v);
                     });

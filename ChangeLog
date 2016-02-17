@@ -1,3 +1,6 @@
+2016-02-17  Kirit Sælensminde  <kirit@felspar.com>
+ All call backs now receive the value parameter as a `const &`.
+
 2016-02-12  Kirit Sælensminde  <kirit@felspar.com>
  Implement stream filtering using `on(...).when` and `on(...).when_not`.
  Implement binary stream merging with a transformation lambda.

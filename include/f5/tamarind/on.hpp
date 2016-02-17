@@ -22,7 +22,7 @@ namespace f5 {
         template<typename T>
         detail::partial<T> on(output<T> &trigger) {
             detail::partial<T> duplicate;
-            trigger.s->template on_value<T>(duplicate.s, [](auto &s, auto v) {
+            trigger.s->template on_value<T>(duplicate.s, [](auto &s, const auto &v) {
                 s.push(v);
             });
             return duplicate;
@@ -33,7 +33,7 @@ namespace f5 {
             typedef decltype(lambda(T{})) V;
             output<V> sink;
             trigger.s->template on_value<V>(sink.s,
-                [lambda](auto &s, auto v) {
+                [lambda](auto &s, const auto &v) {
                     s.push(lambda(v));
                 });
             return sink;

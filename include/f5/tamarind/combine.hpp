@@ -25,7 +25,7 @@ namespace f5 {
             auto wrapped =
                 // TODO capture weak pointers
                 [lambda, b1s = b1.s, b2s = b2.s]
-                (detail::stream<V> &stream, auto) {
+                (detail::stream<V> &stream, const auto&) {
                     if ( b1s->has_value() && b2s->has_value() ) {
                         stream.push(lambda(b1s->value(), b2s->value()));
                     }

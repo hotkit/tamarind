@@ -23,7 +23,7 @@ namespace f5 {
         auto merge(output<V> &&s1, output<V> &&s2) {
             detail::partial<V> into;
             // We capture the streams because we need to keep them alive
-            auto cb = [t1 = s1.s, t2 = s2.s](auto &s, auto v) {
+            auto cb = [t1 = s1.s, t2 = s2.s](auto &s, const auto &v) {
                 s.push(v);
             };
             s1.s->template on_value<V>(into.s, cb);
@@ -36,7 +36,7 @@ namespace f5 {
         auto merge(output<V> &s1, output<V> &s2, F lambda) {
             typedef decltype(lambda(V{})) R;
             detail::partial<R> into;
-            auto cb = [lambda](auto &s, auto v) {
+            auto cb = [lambda](auto &s, const auto &v) {
                 s.push(lambda(v));
             };
             s1.s->template on_value<R>(into.s, cb);

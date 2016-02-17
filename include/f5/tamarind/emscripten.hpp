@@ -33,7 +33,7 @@ namespace f5 {
                 class_<output<V>>(("output__" + n).c_str())
                         .function("onValue", (void (*)(output<V> *, ::emscripten::val))
                             ([](auto self, ::emscripten::val fun) -> void {
-                                self->on_value([fun](V v) mutable {
+                                self->on_value([fun](const V &v) mutable {
                                     fun(::emscripten::val(v));
                                 });
                             }), ::emscripten::allow_raw_pointers())

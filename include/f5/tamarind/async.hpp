@@ -27,7 +27,7 @@ namespace f5 {
             template<typename V>
             async(std::pair<detail::partial<V>, input<T>> &&p) {
                 link(p.first.s);
-                this->s->template on_value<T>(p.second.s, [](auto &s, T v) {
+                this->s->template on_value<T>(p.second.s, [](auto &s, const T &v) {
                         s.push(v);
                     });
             }
