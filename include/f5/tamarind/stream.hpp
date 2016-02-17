@@ -98,14 +98,14 @@ namespace f5 {
                     return last ? true : false;
                 }
 
-                const V &value(const V &def) {
+                const V &value(const V &def) const {
                     if ( last ) {
                         return *last;
                     } else {
                         return def;
                     }
                 }
-                const V &value() {
+                const V &value() const {
                     if ( last ) {
                         return *last;
                     } else {
@@ -150,10 +150,10 @@ namespace f5 {
                 s->template when_value<V>(s, cb);
             }
 
-            V value(V def) {
+            const V &value(const V &def) const {
                 return s->value(def);
             }
-            V value() {
+            const V &value() const {
                 return s->value();
             }
         };
