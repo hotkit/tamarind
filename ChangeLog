@@ -1,4 +1,5 @@
 2016-02-17  Kirit Sælensminde  <kirit@felspar.com>
+ Stream JavaScript binding names are now generated from the typeid of the streams.
  All call backs now receive the value parameter as a `const &`.
 
 2016-02-12  Kirit Sælensminde  <kirit@felspar.com>

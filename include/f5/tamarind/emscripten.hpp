@@ -28,9 +28,9 @@ namespace f5 {
 
             /// Expose the FRP streams for a specified type
             template<typename V> inline
-            void frp(std::string n) {
+            void frp() {
                 using namespace ::emscripten;
-                class_<output<V>>(("output__" + n).c_str())
+                class_<output<V>>(typeid(output<V>).name())
                         .function("onValue", (void (*)(output<V> *, ::emscripten::val))
                             ([](auto self, ::emscripten::val fun) -> void {
                                 self->on_value([fun](const V &v) mutable {
@@ -39,10 +39,10 @@ namespace f5 {
                             }), ::emscripten::allow_raw_pointers())
                         .function("value", select_overload<const V&(void) const>(&output<V>::value))
                     ;
-                class_<input<V>, base<output<V>>>(("input__" + n).c_str())
+                class_<input<V>, base<output<V>>>(typeid(input<V>).name())
                         .function("push", &input<V>::push)
                     ;
-                class_<async<V>, base<input<V>>>(("async__" + n).c_str())
+                class_<async<V>, base<input<V>>>(typeid(async<V>).name())
                         .function("onStart", (void (*)(async<V> *, ::emscripten::val))
                             ([](auto self, ::emscripten::val fun) -> void {
                                 self->on_start([fun]() mutable {
