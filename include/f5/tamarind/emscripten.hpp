@@ -37,6 +37,7 @@ namespace f5 {
                                     fun(::emscripten::val(v));
                                 });
                             }), ::emscripten::allow_raw_pointers())
+                        .function("value", select_overload<const V&(void) const>(&output<V>::value))
                     ;
                 class_<input<V>, base<output<V>>>(("input__" + n).c_str())
                         .function("push", &input<V>::push)
