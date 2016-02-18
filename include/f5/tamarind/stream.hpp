@@ -42,6 +42,14 @@ namespace f5 {
                 }
 
             public:
+                /// Default construct an empty stream with no value
+                stream() {
+                }
+                /// Construct the stream with an initial value
+                stream(std::unique_ptr<V> value)
+                : last(std::move(value)) {
+                }
+
                 /// Pass a lambda that returns true if we want the value. All predicates
                 /// must pass if more than one is registered.
                 template<typename F>
@@ -140,6 +148,10 @@ namespace f5 {
             output(detail::stream_wrapper<V> sw)
             : s(sw.s) {
             }
+            /// Construct with a default value
+            output(std::unique_ptr<V> value)
+            : s(new detail::stream<V>(std::move(value))) {
+            }
 
             void on_value(std::function<void(const V&)> cb) {
                 s->template on_value<V>(s, [cb](auto &s, auto v) {
@@ -162,6 +174,10 @@ namespace f5 {
         /// An input port (also includes the output port)
         template<typename V>
         struct input : public output<V> {
+            /// Inherit the `output<V>` constructors
+            using output<V>::output;
+
+            /// Push a value onto the stream
             void push(V v) {
                 this->s->push(v);
             }
