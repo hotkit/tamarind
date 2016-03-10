@@ -1,3 +1,6 @@
+2016-03-10  Kirit Sælensminde  <kirit@felspar.com>
+ Fix a bug where changes in the FRP graph would cause crashes in feedback cycles.
+
 2016-02-18  Kirit Sælensminde  <kirit@felspar.com>
  Allow initialisation of a stream through a `unique_ptr`. This will get changed to a nicer syntax.
 

@@ -28,17 +28,29 @@ namespace f5 {
             /// Internal implementation of the streams
             template<typename V>
             class stream {
+                std::size_t callbacking = 0;
                 std::function<bool(const V&)> predicate;
-                std::vector<std::function<bool(const V&)>> callbacks;
+                std::vector<std::pair<
+                    std::function<bool(void)>, // Return true if we keep this one
+                    std::function<void(const V&)> // Process the value
+                        >> callbacks;
                 std::unique_ptr<V> last;
 
                 /// When we hold a callback we wrap it so we can determine
                 /// if we still need the callback.
                 void callback(const V &v) {
-                    std::remove_if(callbacks.begin(), callbacks.end(),
-                        [&v](auto cb) {
-                            return cb(v);
+                    ++callbacking;
+                    std::for_each(callbacks.begin(), callbacks.end(),
+                        [&v](auto &cb) {
+                            return cb.second(v);
                         });
+                    --callbacking;
+                    if ( callbacking == 0 ) {
+                        std::remove_if(callbacks.begin(), callbacks.end(),
+                            [](auto &cb) {
+                                return cb.first();
+                            });
+                    }
                 }
 
             public:
@@ -86,15 +98,15 @@ namespace f5 {
                     /// stream reference weakly. This means that if the target
                     /// goes out of scope then the callback won't fire and
                     /// it can be cleared out of this stream's callback list.
-                    callbacks.push_back([sink = std::weak_ptr<stream<Y>>(into), cb](const V &v) {
+                    callbacks.push_back(std::make_pair(
+                        [sink = std::weak_ptr<stream<Y>>(into)]() {
                             std::shared_ptr<stream<Y>> ptr(sink.lock());
-                            if ( ptr ) {
-                                cb(*ptr, v);
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        });
+                            return ptr ? true : false;
+                        },
+                        [sink = std::weak_ptr<stream<Y>>(into), cb](const V &v) {
+                            std::shared_ptr<stream<Y>> ptr(sink.lock());
+                            if ( ptr ) cb(*ptr, v);
+                        }));
                 }
 
                 template<typename Y>
