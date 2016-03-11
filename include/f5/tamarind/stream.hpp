@@ -42,14 +42,16 @@ namespace f5 {
                     ++callbacking;
                     std::for_each(callbacks.begin(), callbacks.end(),
                         [&v](auto &cb) {
-                            return cb.second(v);
+                            cb.second(v);
                         });
                     --callbacking;
                     if ( callbacking == 0 ) {
-                        std::remove_if(callbacks.begin(), callbacks.end(),
+                        auto partition = std::remove_if(
+                            callbacks.begin(), callbacks.end(),
                             [](auto &cb) {
                                 return cb.first();
                             });
+                        callbacks.erase(partition, callbacks.end());
                     }
                 }
 
@@ -101,7 +103,7 @@ namespace f5 {
                     callbacks.push_back(std::make_pair(
                         [sink = std::weak_ptr<stream<Y>>(into)]() {
                             std::shared_ptr<stream<Y>> ptr(sink.lock());
-                            return ptr ? true : false;
+                            return ptr ? false : true;
                         },
                         [sink = std::weak_ptr<stream<Y>>(into), cb](const V &v) {
                             std::shared_ptr<stream<Y>> ptr(sink.lock());
