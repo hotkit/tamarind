@@ -1,3 +1,6 @@
+2016-04-24  Kirit Sælensminde  <kirit@felspar.com>
+ Initial ideas for multi-threaded FRP using Boost ASIO reactor pools.
+
 2016-03-10  Kirit Sælensminde  <kirit@felspar.com>
  Fix a bug where changes in the FRP graph would cause crashes in feedback cycles.
 

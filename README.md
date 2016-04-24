@@ -66,4 +66,9 @@ There are a number of functions that are used to build streams out of other stre
 
 There are no special provisions for thread safety in Tamarind. Streams are not themselves thread safe and care must be taken not to push values into streams from different threads at any given time.
 
+The `ioblock` can be used for processing through a Boost ASIO reactor pool. This makes use of the `f5::boost_asio::reactor_pool` and a strand for each block. A block is a part of the FRP graph that runs in its own strand in the reactor.
+
+The inputs  can be wired from other parts of the program and used from multiple threads at once. The valuess are posted into the strand and the internal wiring of the block runs inside that strand. The internal wiring must be wired in through use of the `iobloc::on` method rather than the global one.
+
+
 
