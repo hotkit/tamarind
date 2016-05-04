@@ -58,7 +58,7 @@ namespace f5 {
 
             void push(V v) {
                 block.barrier.post([s = stream.s, v = std::move(v)]() {
-                    s.push(v);
+                    s->push(v);
                 });
             }
         };
