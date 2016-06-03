@@ -185,6 +185,11 @@ namespace f5 {
         };
 
 
+        /// An output stream that carries an object
+        template<typename V>
+        using clip = output<std::shared_ptr<V>>;
+
+
         /// An input port (also includes the output port)
         template<typename V>
         struct input : public output<V> {
