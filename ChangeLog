@@ -1,3 +1,6 @@
+2019-11-21  Kirit Sælensminde  <kirit@felspar.com>
+ Complete project reset. The old version will live on in the "legacy" branch.
+
 2016-04-24  Kirit Sælensminde  <kirit@felspar.com>
  Initial ideas for multi-threaded FRP using Boost ASIO reactor pools.
 
