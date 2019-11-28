@@ -14,5 +14,3 @@ if(TARGET check)
     set_property(TARGET check PROPERTY EXCLUDE_FROM_ALL TRUE)
     add_subdirectory(test)
 endif()
-
-add_library(f5-tamarind INTERFACE)
