@@ -1,0 +1,52 @@
+[
+    "workflow",
+    "simple",
+    {
+        "" : [
+            "progn",
+            [
+                "await",
+                "request",
+                [
+                    "progn",
+                    [
+                        "schema-check",
+                        "${request}",
+                        [
+                            "q",
+                            {
+                                "properties" : {
+                                    "example" : {
+                                        "const" : "data"
+                                    }
+                                }
+                            }
+                        ]
+                    ],
+                    [
+                        "exit",
+                        "request"
+                    ]
+                ]
+            ]
+        ],
+        "path" : ["ingress"],
+        "request" : [
+            "GET",
+            "http",
+            [
+                "progn",
+                [
+                    "//api.example.com/${path}/",
+                    200,
+                    [
+                        "q",
+                        {
+                            "example" : "data"
+                        }
+                    ]
+                ]
+            ]
+        ]
+    }
+]
