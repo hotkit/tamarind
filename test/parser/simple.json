@@ -30,14 +30,20 @@
                 ]
             ]
         ],
-        "path" : ["ingress"],
+        "path" : [
+            "ingress",
+            [
+                "q",
+                "/path/to/api"
+            ]
+        ],
         "request" : [
             "GET",
             "http",
             [
                 "progn",
                 [
-                    "//api.example.com/${path}/",
+                    "//api.example.com${path}/",
                     200,
                     [
                         "q",
