@@ -6,12 +6,12 @@
             "progn",
             [
                 "await",
-                "request",
+                "response",
                 [
                     "progn",
                     [
                         "schema-check",
-                        "${request}",
+                        "response.body",
                         [
                             "q",
                             {
@@ -23,10 +23,7 @@
                             }
                         ]
                     ],
-                    [
-                        "exit",
-                        "request"
-                    ]
+                    ["exit"]
                 ]
             ]
         ],
@@ -37,21 +34,18 @@
                 "/path/to/api"
             ]
         ],
-        "request" : [
+        "response" : [
             "GET",
-            "http",
             [
-                "progn",
-                [
-                    "//api.example.com${path}/",
-                    200,
-                    [
-                        "q",
-                        {
-                            "example" : "data"
-                        }
-                    ]
-                ]
+                "q",
+                "http://api.example.com${path}/"
+            ],
+            200,
+            [
+                "q",
+                {
+                    "example" : "data"
+                }
             ]
         ]
     }
