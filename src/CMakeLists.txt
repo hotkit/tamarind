@@ -1,5 +1,6 @@
 add_library(f5-tamarind
         parse.cpp
+        runtime.cpp
     )
 target_include_directories(f5-tamarind PUBLIC ../include)
 target_link_libraries(f5-tamarind PUBLIC fost-core)
