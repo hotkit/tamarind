@@ -10,6 +10,7 @@
 #include <f5/tamarind/parser/workflow.hpp>
 
 #include <fost/file>
+#include <fost/insert>
 #include <fost/push_back>
 
 
@@ -31,8 +32,17 @@ fostlib::json f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
         }
         return ret;
     } else {
-        throw fostlib::exceptions::not_implemented{__PRETTY_FUNCTION__,
-                                                   "Parse error reporting"};
+        f5::u8string parsed{script.begin(), pos.first.u32_iterator()};
+        std::size_t line{1}, col{1};
+        for (auto c : parsed) {
+            if (c == '\n') {
+                ++line;
+                col = 1;
+            } else {
+                ++col;
+            }
+        }
+        throw fostlib::exceptions::parse_error{"Unknown parse error", filename, line, col};
     }
     return ret;
 }

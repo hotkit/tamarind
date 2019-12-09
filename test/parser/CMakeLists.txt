@@ -14,6 +14,15 @@ if(TARGET check)
     parse(empty)
     parse(simple)
 
+    macro(error name)
+        add_custom_command(OUTPUT ${name}.json
+                COMMAND tamarind-test-parser -b false -e ${CMAKE_CURRENT_SOURCE_DIR}/${name}.json
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${name}.workflow)
+        list(APPEND parse-tests ${name}.json)
+    endmacro()
+
+    error(error.missing-identifier)
+
     add_custom_target(tamarind-parse-tests DEPENDS ${parse-tests})
     set_property(TARGET tamarind-parse-tests PROPERTY EXCLUDE_FROM_ALL TRUE)
     add_dependencies(check tamarind-parse-tests)

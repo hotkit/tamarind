@@ -1,0 +1,7 @@
+{
+    "message" : "Unknown parse error",
+    "pos" : {
+        "column" : 1,
+        "line" : 2
+    }
+}
