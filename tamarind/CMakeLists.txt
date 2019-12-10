@@ -8,3 +8,9 @@ target_link_libraries(f5-tamarind PRIVATE thread-pool)
 target_compile_features(f5-tamarind PUBLIC cxx_std_17)
 target_compile_options(f5-tamarind PUBLIC -fcoroutines-ts)
 install(DIRECTORY ../include/f5 DESTINATION include)
+
+add_executable(tamarind main.cpp)
+target_link_libraries(tamarind f5-tamarind fost-cli)
+
+if(TARGET stress)
+endif()
