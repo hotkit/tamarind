@@ -11,6 +11,8 @@
 
 #include <thread-pool/thread_pool.hpp>
 
+#include <iostream>
+
 
 struct f5::tamarind::runtime::impl {
     tp::ThreadPool threads;
@@ -29,7 +31,12 @@ std::future<int> f5::tamarind::runtime::completion() {
 
 void f5::tamarind::runtime::load(fostlib::fs::path fn) {
     pimpl->threads.post([this, fn = std::move(fn)]() {
-        auto const wf = parse::workflow(fn);
-        status_code.set_value(0);
+        try {
+            auto const wf = parse::workflow(fn);
+            status_code.set_value(0);
+        } catch (fostlib::exceptions::exception &e) {
+            std::cerr << e << std::endl;
+            status_code.set_value(1);
+        } catch (...) { status_code.set_value(127); }
     });
 }

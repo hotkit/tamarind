@@ -42,7 +42,8 @@ fostlib::json f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
                 ++col;
             }
         }
-        throw fostlib::exceptions::parse_error{"Unknown parse error", filename, line, col};
+        throw fostlib::exceptions::parse_error{"Unknown parse error", filename,
+                                               line, col};
     }
     return ret;
 }

@@ -10,6 +10,7 @@
 
 
 #include <fost/core>
+#include <fost/exception/parse_error.hpp>
 
 
 namespace f5::tamarind::parse {
