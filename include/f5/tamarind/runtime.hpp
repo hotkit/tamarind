@@ -9,7 +9,11 @@
 #pragma once
 
 
+#include <f5/makham/task.hpp>
+#include <f5/tamarind/workflow.hpp>
+
 #include <fost/core>
+#include <f5/threading/map.hpp>
 
 #include <future>
 
@@ -25,6 +29,9 @@ namespace f5::tamarind {
         std::unique_ptr<impl> pimpl;
 
         std::promise<int> status_code;
+
+        /// Store the workflows
+        f5::threading::tsmap<f5::u8shared, makham::task<workflow>> workflows;
 
       public:
         runtime();

@@ -9,15 +9,15 @@
 #pragma once
 
 
-namespace f5::makham {
+#include <fost/core>
+#include <fost/exception/parse_error.hpp>
 
 
-    /// ## Task
-    /**
-     * A task whose completion can be awaited. Tasks are started eagerly.
-     */
-    template<typename R>
-    class task {};
+namespace f5::tamarind {
+
+
+    /// A workflow loaded from a script
+    class workflow {};
 
 
 }
