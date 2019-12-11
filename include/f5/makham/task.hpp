@@ -12,13 +12,12 @@
 namespace f5::makham {
 
 
-    /// ## Work unit
+    /// ## Task
     /**
-     * Combines multiple tasks into a single awaitable that triggers when
-     * everything is done.
+     * A task whose completion can be awaited.
      */
     template<typename R>
-    class unit {};
+    class task {};
 
 
 }
