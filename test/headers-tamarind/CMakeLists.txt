@@ -1,5 +1,4 @@
 add_library(tamarind-headers-tests STATIC EXCLUDE_FROM_ALL
-        node.cpp
         parse.cpp
         parser.workflow.cpp
     )
