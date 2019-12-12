@@ -17,7 +17,8 @@ namespace f5::tamarind::parse {
 
 
     /// Parse a workflow file
-    fostlib::json workflow(fostlib::fs::path const &filename);
+    std::pair<f5::u8string, fostlib::json>
+            workflow(fostlib::fs::path const &filename);
 
 
 }

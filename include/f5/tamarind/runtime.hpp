@@ -24,9 +24,11 @@ namespace f5::tamarind {
     /**
      */
     class runtime {
+      public:
         struct impl;
-        std::unique_ptr<impl> pimpl;
 
+      private:
+        std::unique_ptr<impl> pimpl;
         std::promise<int> status_code;
 
       public:

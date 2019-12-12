@@ -48,7 +48,7 @@ FSL_MAIN("tamarind-test-parser", "Tamarind test parser")
     args.commandSwitch("o", c_save_filename);
 
     try {
-        auto const parsed = f5::tamarind::parse::workflow(
+        auto const [name, parsed] = f5::tamarind::parse::workflow(
                 fostlib::coerce<fostlib::fs::path>(args[1].value()));
         if (c_error_filename.value()) {
             return 1;

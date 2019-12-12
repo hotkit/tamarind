@@ -14,12 +14,12 @@
 #include <fost/push_back>
 
 
-fostlib::json f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
+std::pair<f5::u8string, fostlib::json>
+        f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
+    auto const name = fostlib::coerce<fostlib::string>(filename.stem());
     fostlib::json ret, into;
-    fostlib::push_back(
-            ret,
-            fostlib::coerce<fostlib::string>(filename.extension()).substr(1));
-    fostlib::push_back(ret, fostlib::coerce<fostlib::string>(filename.stem()));
+    fostlib::push_back(ret, "workflow");
+    fostlib::push_back(ret, name);
     auto script = fostlib::utf::load_file(filename);
     auto pos = f5::cord::make_u32u16_iterator(script.begin(), script.end());
     f5::tamarind::parsers::workflow<decltype(pos.first)> rule;
@@ -30,7 +30,7 @@ fostlib::json f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
         } else {
             for (auto &&sexpr : into) { fostlib::push_back(ret, sexpr); }
         }
-        return ret;
+        return {name.u8string_transition(), ret};
     } else {
         f5::u8string parsed{script.begin(), pos.first.u32_iterator()};
         std::size_t line{1}, col{1};
@@ -45,5 +45,4 @@ fostlib::json f5::tamarind::parse::workflow(fostlib::fs::path const &filename) {
         throw fostlib::exceptions::parse_error{"Unknown parse error", filename,
                                                line, col};
     }
-    return ret;
 }

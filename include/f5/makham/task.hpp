@@ -18,17 +18,15 @@ namespace f5::makham {
 
     /// ## Task
     /**
-     * A task whose completion can be awaited. Tasks are started eagerly.
+     * A task whose completion can be awaited..
      */
     template<typename R>
     class task {
-    public:
+      public:
         struct promise_type {
             std::optional<R> value;
 
-            auto get_return_object() {
-                return task<R>{};
-            }
+            auto get_return_object() { return task<R>{}; }
             auto initial_suspend() {
                 return std::experimental::suspend_always{};
             }
@@ -37,12 +35,10 @@ namespace f5::makham {
                 return std::experimental::suspend_always{};
             }
             auto final_suspend() { return std::experimental::suspend_always{}; }
-            void unhandled_exception() {
-                std::exit(117);
-            }
+            void unhandled_exception() { std::exit(117); }
         };
 
-    private:
+      private:
         using handle_type = std::experimental::coroutine_handle<promise_type>;
         handle_type coro;
     };

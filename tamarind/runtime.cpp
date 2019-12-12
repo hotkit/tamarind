@@ -29,13 +29,14 @@ std::future<int> f5::tamarind::runtime::completion() {
 
 
 namespace {
-    f5::makham::task<f5::tamarind::workflow> wf(fostlib::fs::path fn) {
-        co_return f5::tamarind::workflow(f5::tamarind::parse::workflow(fn));
+    f5::makham::task<f5::tamarind::workflow> wf(fostlib::json ast) {
+        co_return f5::tamarind::workflow(ast);
     }
 }
 
 
 void f5::tamarind::runtime::load(fostlib::fs::path fn) {
     f5::makham::post([this, fn = std::move(fn)]() {
+        auto [name, ast] = f5::tamarind::parse::workflow(fn);
     });
 }

@@ -18,7 +18,7 @@ namespace f5::tamarind {
 
     /// A workflow loaded from a script
     class workflow {
-    public:
+      public:
         workflow(fostlib::json ast);
     };
 

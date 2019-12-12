@@ -16,6 +16,4 @@ namespace {
 }
 
 
-void f5::makham::post(function_type f) {
-    threads.post(std::move(f));
-}
+void f5::makham::post(function_type f) { threads.post(std::move(f)); }
