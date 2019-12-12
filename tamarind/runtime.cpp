@@ -12,6 +12,8 @@
 
 #include <f5/threading/map.hpp>
 
+#include <iostream>
+
 
 struct f5::tamarind::runtime::impl {
     /// Store the workflows
@@ -20,28 +22,19 @@ struct f5::tamarind::runtime::impl {
 };
 
 
-f5::tamarind::runtime::runtime() : pimpl{std::make_unique<impl>()} {}
+f5::tamarind::runtime::runtime() : self{std::make_unique<impl>()} {}
 f5::tamarind::runtime::~runtime() = default;
 
 
-std::future<int> f5::tamarind::runtime::completion() {
-    return status_code.get_future();
-}
-
-
 namespace {
-    f5::makham::task<f5::tamarind::workflow> wf(fostlib::json ast) {
+    f5::makham::task<f5::tamarind::workflow> wfexec(fostlib::json ast) {
         co_return f5::tamarind::workflow(ast);
     }
 }
 
 
-void f5::tamarind::runtime::load(fostlib::fs::path fn) {
-    f5::makham::post([this, fn = std::move(fn)]() {
-        auto [name, ast] = f5::tamarind::parse::workflow(fn);
-        pimpl->workflows.add_if_not_found(name, [ast = std::move(ast)]() {
-            auto t = wf(std::move(ast));
-            return t;
-        });
-    });
+f5::makham::task<f5::u8string>
+        f5::tamarind::runtime::load(fostlib::fs::path fn) {
+    auto [name, ast] = f5::tamarind::parse::workflow(fn);
+    co_return name;
 }

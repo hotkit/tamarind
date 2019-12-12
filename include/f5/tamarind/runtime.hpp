@@ -28,20 +28,14 @@ namespace f5::tamarind {
         struct impl;
 
       private:
-        std::unique_ptr<impl> pimpl;
-        std::promise<int> status_code;
+        std::unique_ptr<impl> self;
 
       public:
         runtime();
         ~runtime();
 
-        /// A future that will signify that the scripts have fully completed.
-        /// This is intended for use in `main` so the return status can be
-        /// returned correctly. This API can be called only once.
-        std::future<int> completion();
-
         /// ## Script loading and starts
-        void load(fostlib::fs::path);
+        makham::task<f5::u8string> load(fostlib::fs::path);
     };
 
 

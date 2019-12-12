@@ -8,5 +8,9 @@
 
 #include <f5/tamarind/workflow.hpp>
 
+#include <iostream>
 
-f5::tamarind::workflow::workflow(fostlib::json ast) {}
+
+f5::tamarind::workflow::workflow(fostlib::json ast) {
+    std::cout << "Loaded " << ast[1] << std::endl;
+}

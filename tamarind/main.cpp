@@ -1,14 +1,17 @@
 #include <fost/cli>
 #include <fost/main.hpp>
 
+#include <f5/makham/unit.hpp>
 #include <f5/tamarind/runtime.hpp>
 
 
 FSL_MAIN("tamarind", "Tamarind runtime")
 (fostlib::ostream &out, fostlib::arguments &args) {
     f5::tamarind::runtime rt;
+    f5::makham::unit<f5::u8string> loaders;
     for (auto const &arg : args) {
-        rt.load(fostlib::coerce<fostlib::fs::path>(arg));
+        loaders.add(rt.load(fostlib::coerce<fostlib::fs::path>(arg)));
     }
-    return rt.completion().get();
+    loaders.block();
+    return 0;
 }

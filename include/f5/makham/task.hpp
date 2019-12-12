@@ -10,7 +10,7 @@
 
 
 #include <experimental/coroutine>
-#include <optional>
+#include <future>
 
 
 namespace f5::makham {
@@ -22,23 +22,39 @@ namespace f5::makham {
      */
     template<typename R>
     class task {
+        std::future<R> future;
+
       public:
         struct promise_type {
-            std::optional<R> value;
+            std::promise<R> value;
 
-            auto get_return_object() { return task<R>{}; }
+            auto get_return_object() { return task<R>{value.get_future()}; }
             auto initial_suspend() {
                 return std::experimental::suspend_always{};
             }
             auto return_value(R v) {
-                value = std::move(v);
+                value.set_value(std::move(v));
                 return std::experimental::suspend_always{};
             }
             auto final_suspend() { return std::experimental::suspend_always{}; }
             void unhandled_exception() { std::exit(117); }
         };
 
+        std::experimental::coroutine_handle<> handle() const { return coro; }
+
+
+        /// ### Awaitable
+        bool await_ready() const { return false; }
+
+        void await_suspend(std::experimental::coroutine_handle<> awaiting) {}
+
+        auto await_resume() { return future.get(); }
+
       private:
+        friend struct promise_type;
+
+        task(std::future<R> f) : future(std::move(f)) {}
+
         using handle_type = std::experimental::coroutine_handle<promise_type>;
         handle_type coro;
     };
