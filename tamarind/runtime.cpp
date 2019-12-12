@@ -15,7 +15,8 @@
 
 struct f5::tamarind::runtime::impl {
     /// Store the workflows
-    f5::threading::tsmap<f5::u8shared, makham::task<workflow>> workflows;
+    f5::threading::tsmap<f5::u8string, makham::task<workflow>> workflows;
+    std::vector<std::experimental::coroutine_handle<>> resumables;
 };
 
 
@@ -38,5 +39,9 @@ namespace {
 void f5::tamarind::runtime::load(fostlib::fs::path fn) {
     f5::makham::post([this, fn = std::move(fn)]() {
         auto [name, ast] = f5::tamarind::parse::workflow(fn);
+        pimpl->workflows.add_if_not_found(name, [ast = std::move(ast)]() {
+            auto t = wf(std::move(ast));
+            return t;
+        });
     });
 }
