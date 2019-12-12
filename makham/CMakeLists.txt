@@ -1,4 +1,5 @@
 add_library(f5-makham
+        task.cpp
         unit.cpp
     )
 target_include_directories(f5-makham PUBLIC ../include)
