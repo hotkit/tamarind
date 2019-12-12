@@ -9,6 +9,10 @@
 #pragma once
 
 
+#include <experimental/coroutine>
+#include <optional>
+
+
 namespace f5::makham {
 
 
@@ -17,7 +21,31 @@ namespace f5::makham {
      * A task whose completion can be awaited. Tasks are started eagerly.
      */
     template<typename R>
-    class task {};
+    class task {
+    public:
+        struct promise_type {
+            std::optional<R> value;
+
+            auto get_return_object() {
+                return task<R>{};
+            }
+            auto initial_suspend() {
+                return std::experimental::suspend_always{};
+            }
+            auto return_value(R v) {
+                value = std::move(v);
+                return std::experimental::suspend_always{};
+            }
+            auto final_suspend() { return std::experimental::suspend_always{}; }
+            void unhandled_exception() {
+                std::exit(117);
+            }
+        };
+
+    private:
+        using handle_type = std::experimental::coroutine_handle<promise_type>;
+        handle_type coro;
+    };
 
 
 }

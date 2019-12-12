@@ -1,4 +1,5 @@
 add_library(makham-headers-tests STATIC EXCLUDE_FROM_ALL
+        executor.cpp
         task.cpp
         unit.cpp
     )

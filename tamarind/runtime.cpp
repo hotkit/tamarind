@@ -8,19 +8,18 @@
 
 #include <f5/tamarind/parse.hpp>
 #include <f5/tamarind/runtime.hpp>
+#include <f5/makham/executor.hpp>
 
-#include <thread-pool/thread_pool.hpp>
-
-#include <iostream>
+#include <f5/threading/map.hpp>
 
 
 struct f5::tamarind::runtime::impl {
-    tp::ThreadPool threads;
+    /// Store the workflows
+    f5::threading::tsmap<f5::u8shared, makham::task<workflow>> workflows;
 };
 
 
 f5::tamarind::runtime::runtime() : pimpl{std::make_unique<impl>()} {}
-
 f5::tamarind::runtime::~runtime() = default;
 
 
@@ -29,14 +28,14 @@ std::future<int> f5::tamarind::runtime::completion() {
 }
 
 
+namespace {
+    f5::makham::task<f5::tamarind::workflow> wf(fostlib::fs::path fn) {
+        co_return f5::tamarind::workflow(f5::tamarind::parse::workflow(fn));
+    }
+}
+
+
 void f5::tamarind::runtime::load(fostlib::fs::path fn) {
-    pimpl->threads.post([this, fn = std::move(fn)]() {
-        try {
-            auto const wf = parse::workflow(fn);
-            status_code.set_value(0);
-        } catch (fostlib::exceptions::exception &e) {
-            std::cerr << e << std::endl;
-            status_code.set_value(1);
-        } catch (...) { status_code.set_value(127); }
+    f5::makham::post([this, fn = std::move(fn)]() {
     });
 }
