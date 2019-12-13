@@ -28,10 +28,10 @@ namespace f5::makham {
     class task {
       public:
         struct promise_type {
-            std::optional<R> value;
+            std::optional<R> value = {};
             std::atomic<bool> started = false;
-            std::atomic<std::experimental::coroutine_handle<>> cb;
-            std::promise<R> fp;
+            std::atomic<std::experimental::coroutine_handle<>> cb = {};
+            std::promise<R> fp = {};
 
             void signal(std::experimental::coroutine_handle<> s) {
                 auto old = cb.exchange(s);
