@@ -45,7 +45,7 @@ namespace std::experimental {
             }
             auto return_void() {
                 donep.set_value();
-                return std::experimental::suspend_always{};
+                return std::experimental::suspend_never{};
             }
             auto final_suspend() { return std::experimental::suspend_always{}; }
             void unhandled_exception() {
