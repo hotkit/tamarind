@@ -12,6 +12,7 @@ FSL_MAIN("tamarind", "Tamarind runtime")
     for (auto const &arg : args) {
         loaders.add(rt.load(fostlib::coerce<fostlib::fs::path>(arg)));
     }
+    out << "Waiting for completion of work unit\n";
     loaders.block();
     return 0;
 }

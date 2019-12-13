@@ -9,8 +9,12 @@
 #pragma once
 
 
+#include <f5/makham/executor.hpp>
+
 #include <experimental/coroutine>
 #include <future>
+#include <iostream>
+#include <optional>
 
 
 namespace f5::makham {
@@ -22,41 +26,66 @@ namespace f5::makham {
      */
     template<typename R>
     class task {
-        std::future<R> future;
-
       public:
         struct promise_type {
-            std::promise<R> value;
+            std::optional<R> value;
+            std::atomic<bool> started = false;
+            std::atomic<std::experimental::coroutine_handle<>> cb;
+            std::promise<R> fp;
 
-            auto get_return_object() { return task<R>{value.get_future()}; }
+            void signal(std::experimental::coroutine_handle<> s) {
+                auto old = cb.exchange(s);
+                if (old) {
+                    throw std::invalid_argument{
+                            "A task can only have one awaitable"};
+                }
+            }
+
+            auto get_return_object() {
+                return task<R>{std::experimental::coroutine_handle<
+                        promise_type>::from_promise(*this)};
+            }
             auto initial_suspend() {
                 return std::experimental::suspend_always{};
             }
             auto return_value(R v) {
-                value.set_value(std::move(v));
-                return std::experimental::suspend_always{};
+                fp.set_value(v);
+                value = std::move(v);
+                return std::experimental::suspend_never{};
             }
             auto final_suspend() { return std::experimental::suspend_always{}; }
-            void unhandled_exception() { std::exit(117); }
+            void unhandled_exception() {
+                std::cerr << "unhandled_exception in a task\n";
+            }
         };
 
         std::experimental::coroutine_handle<> handle() const { return coro; }
 
+        void start_async() {
+            auto const running = coro.promise().started.exchange(true);
+            if (not running) {
+                f5::makham::post([this]() { coro.resume(); });
+            }
+        }
+
+        auto as_future() {
+            start_async();
+            return coro.promise().fp.get_future();
+        }
 
         /// ### Awaitable
         bool await_ready() const { return false; }
-
-        void await_suspend(std::experimental::coroutine_handle<> awaiting) {}
-
-        auto await_resume() { return future.get(); }
+        void await_suspend(std::experimental::coroutine_handle<> awaiting) {
+            coro.promise().signal(awaiting);
+            start_async();
+        }
+        auto await_resume() { return *coro.promise().value; }
 
       private:
-        friend struct promise_type;
-
-        task(std::future<R> f) : future(std::move(f)) {}
-
         using handle_type = std::experimental::coroutine_handle<promise_type>;
         handle_type coro;
+
+        task(handle_type c) : coro{c} {}
     };
 
 
