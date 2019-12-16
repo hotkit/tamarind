@@ -76,7 +76,6 @@ namespace f5::makham {
                 });
             }
         }
-
         auto as_future() {
             start_async();
             return coro.promise().fp.get_future();
@@ -155,7 +154,10 @@ namespace f5::makham {
         std::variant<std::monostate, std::exception_ptr, R> value = {};
         std::promise<R> fp = {};
 
-        task<R, promise_type> get_return_object();
+        auto get_return_object() {
+            return task<R, promise_type<R>>{std::experimental::coroutine_handle<
+                    promise_type<R>>::from_promise(*this)};
+        }
         auto return_value(R v) {
             fp.set_value(v);
             value = std::move(v);
@@ -169,13 +171,4 @@ namespace f5::makham {
     };
 
 
-}
-
-
-template<typename R>
-inline auto f5::makham::promise_type<R>::get_return_object()
-        -> task<R, promise_type> {
-    return task<R, promise_type<R>>{
-            std::experimental::coroutine_handle<promise_type<R>>::from_promise(
-                    *this)};
 }
