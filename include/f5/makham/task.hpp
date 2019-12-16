@@ -51,17 +51,21 @@ namespace f5::makham {
      * A task whose completion can be awaited..
      */
     template<typename R, typename P>
-    class task {
+    class task final {
       public:
         using promise_type = P;
         friend promise_type;
+
+        ~task() {
+            if (coro) coro.destroy();
+        }
 
         /// Not copyable
         task(task const &) = delete;
         task &operator=(task const &) = delete;
         /// Movable
-        task(task &&t) : coro(t.coro) { t.coro = {}; }
-        task &operator=(task &&t) { swap(coro, t.coro); }
+        task(task &&t) noexcept : coro(t.coro) { t.coro = {}; }
+        task &operator=(task &&t) noexcept { swap(coro, t.coro); }
 
         std::experimental::coroutine_handle<> handle() const { return coro; }
 
@@ -151,12 +155,15 @@ namespace f5::makham {
     /// ## The task promise type
     template<typename R>
     struct promise_type : public async_promise {
+        using task_type = task<R, promise_type<R>>;
+        using handle_type =
+                std::experimental::coroutine_handle<promise_type<R>>;
+
         std::variant<std::monostate, std::exception_ptr, R> value = {};
         std::promise<R> fp = {};
 
         auto get_return_object() {
-            return task<R, promise_type<R>>{std::experimental::coroutine_handle<
-                    promise_type<R>>::from_promise(*this)};
+            return task_type{handle_type::from_promise(*this)};
         }
         auto return_value(R v) {
             fp.set_value(v);
