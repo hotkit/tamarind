@@ -117,7 +117,7 @@ namespace f5::makham {
             coro.promise().signal(awaiting);
             start_async();
         }
-        auto await_resume() {
+        R await_resume() {
             auto &p = coro.promise();
             if (p.exception) {
                 std::rethrow_exception(p.exception);

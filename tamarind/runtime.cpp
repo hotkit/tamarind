@@ -17,8 +17,7 @@
 
 struct f5::tamarind::runtime::impl {
     /// Store the workflows
-    f5::threading::tsmap<f5::u8string, makham::task<workflow>> workflows;
-    std::vector<std::experimental::coroutine_handle<>> resumables;
+    f5::threading::tsmap<f5::u8string, workflow> workflows;
 };
 
 
@@ -38,5 +37,6 @@ f5::makham::task<f5::u8string>
         f5::tamarind::runtime::load(fostlib::fs::path fn) {
     std::cout << fn << std::endl;
     auto [name, ast] = f5::tamarind::parse::workflow(fn);
+    self->workflows.insert_or_assign(name, co_await wfexec(std::move(ast)));
     co_return name;
 }
