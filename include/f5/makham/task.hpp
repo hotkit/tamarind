@@ -46,64 +46,6 @@ namespace f5::makham {
     class task;
 
 
-    /// An asynchronous promise
-    struct async_promise {
-        std::atomic<bool> has_value = false;
-        std::atomic<bool> started = false;
-        std::atomic<std::experimental::coroutine_handle<>> continuation = {};
-
-        void continuation_if_not_run() {
-            auto h = continuation.exchange({});
-            if (h) {
-                std::cout << "Continuation for " << this << std::endl;
-                h.resume();
-            } else {
-                std::cout << "No continuation to run for " << this << std::endl;
-            }
-        }
-        void signal(std::experimental::coroutine_handle<> s) {
-            auto const old = continuation.exchange(s);
-            if (old) {
-                throw std::invalid_argument{
-                        "A task can only have one awaitable"};
-            }
-            auto const done = has_value.exchange(false);
-            if (done) {
-                std::cout << "Value arrived when setting signal" << std::endl;
-                continuation_if_not_run();
-            }
-        }
-        void value_has_been_set() {
-            std::cout << "Value has been set" << std::endl;
-            if (has_value.exchange(true)) {
-                throw std::runtime_error{"Coroutine already had a value set"};
-            }
-            continuation_if_not_run();
-        }
-        auto initial_suspend() { return std::experimental::suspend_always{}; }
-        auto final_suspend() { return std::experimental::suspend_always{}; }
-    };
-
-    /// ## The task promise type
-    template<typename R>
-    struct promise_type : public async_promise {
-        std::variant<std::monostate, std::exception_ptr, R> value = {};
-        std::promise<R> fp = {};
-
-        task<R, promise_type> get_return_object();
-        auto return_value(R v) {
-            fp.set_value(v);
-            value = std::move(v);
-            value_has_been_set();
-            return std::experimental::suspend_never{};
-        }
-        void unhandled_exception() {
-            value = std::current_exception();
-            value_has_been_set();
-        }
-    };
-
-
     /// ## Task
     /**
      * A task whose completion can be awaited..
@@ -164,6 +106,65 @@ namespace f5::makham {
 
         task(handle_type c) : coro{c} {
             std::cout << "Created task " << &coro.promise() << std::endl;
+        }
+    };
+
+
+    /// An asynchronous promise
+    struct async_promise {
+        std::atomic<bool> has_value = false;
+        std::atomic<bool> started = false;
+        std::atomic<std::experimental::coroutine_handle<>> continuation = {};
+
+        void continuation_if_not_run() {
+            auto h = continuation.exchange({});
+            if (h) {
+                std::cout << "Continuation for " << this << std::endl;
+                h.resume();
+            } else {
+                std::cout << "No continuation to run for " << this << std::endl;
+            }
+        }
+        void signal(std::experimental::coroutine_handle<> s) {
+            auto const old = continuation.exchange(s);
+            if (old) {
+                throw std::invalid_argument{
+                        "A task can only have one awaitable"};
+            }
+            auto const done = has_value.exchange(false);
+            if (done) {
+                std::cout << "Value arrived when setting signal" << std::endl;
+                continuation_if_not_run();
+            }
+        }
+        void value_has_been_set() {
+            std::cout << "Value has been set" << std::endl;
+            if (has_value.exchange(true)) {
+                throw std::runtime_error{"Coroutine already had a value set"};
+            }
+            continuation_if_not_run();
+        }
+        auto initial_suspend() { return std::experimental::suspend_always{}; }
+        auto final_suspend() { return std::experimental::suspend_always{}; }
+    };
+
+
+    /// ## The task promise type
+    template<typename R>
+    struct promise_type : public async_promise {
+        std::variant<std::monostate, std::exception_ptr, R> value = {};
+        std::promise<R> fp = {};
+
+        task<R, promise_type> get_return_object();
+        auto return_value(R v) {
+            fp.set_value(v);
+            value = std::move(v);
+            value_has_been_set();
+            return std::experimental::suspend_never{};
+        }
+        void unhandled_exception() {
+            value = std::current_exception();
+            value_has_been_set();
         }
     };
 
