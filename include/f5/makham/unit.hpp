@@ -33,37 +33,17 @@ namespace f5::makham {
 }
 
 
-namespace std::experimental {
-    template<typename R>
-    struct coroutine_traits<std::future<void>, f5::makham::unit<R> &> {
-        struct promise_type {
-            std::promise<void> donep;
-
-            auto get_return_object() { return donep.get_future(); }
-            auto initial_suspend() {
-                return std::experimental::suspend_always{};
-            }
-            auto return_void() {
-                donep.set_value();
-                return std::experimental::suspend_never{};
-            }
-            auto final_suspend() { return std::experimental::suspend_always{}; }
-            void unhandled_exception() {
-                std::cerr << "unhandled_exception for std::future<> wrapper\n";
-            }
-        };
-    };
-}
-
-
 template<typename R>
 inline std::size_t f5::makham::unit<R>::block() {
     auto t = [this]() -> task<std::size_t> {
+        std::cout << "Starting to resume " << resumables.size() << " coroutines"
+                  << std::endl;
         /// Start every resumable as separate tasks
         for (auto &t : resumables) { t.start_async(); }
         /// Wait for them all to finish
         std::size_t count{};
         for (auto &t : resumables) {
+            std::cout << "Awating task" << std::endl;
             co_await t;
             ++count;
         }
