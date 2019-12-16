@@ -25,18 +25,11 @@ f5::tamarind::runtime::runtime() : self{std::make_unique<impl>()} {}
 f5::tamarind::runtime::~runtime() = default;
 
 
-namespace {
-    f5::makham::task<f5::tamarind::workflow> wfexec(fostlib::json ast) {
-        std::cout << "Got AST" << std::endl;
-        co_return f5::tamarind::workflow(ast);
-    }
-}
-
-
 f5::makham::task<f5::u8string>
         f5::tamarind::runtime::load(fostlib::fs::path fn) {
     std::cout << fn << std::endl;
     auto [name, ast] = f5::tamarind::parse::workflow(fn);
-    self->workflows.insert_or_assign(name, co_await wfexec(std::move(ast)));
+    self->workflows.insert_or_assign(
+            name, f5::tamarind::workflow(std::move(ast)));
     co_return name;
 }
