@@ -39,78 +39,87 @@ namespace f5 {
 namespace f5::makham {
 
 
+    /// Forward declarations
+    template<typename R>
+    struct promise_type;
+    template<typename R, typename P = promise_type<R>>
+    class task;
+
+
+    /// An asynchronous promise
+    struct async_promise {
+        std::atomic<bool> has_value = false;
+        std::atomic<bool> started = false;
+        std::atomic<std::experimental::coroutine_handle<>> continuation = {};
+
+        void continuation_if_not_run() {
+            auto h = continuation.exchange({});
+            if (h) {
+                std::cout << "Continuation for " << this << std::endl;
+                h.resume();
+            } else {
+                std::cout << "No continuation to run for " << this << std::endl;
+            }
+        }
+        void signal(std::experimental::coroutine_handle<> s) {
+            auto const old = continuation.exchange(s);
+            if (old) {
+                throw std::invalid_argument{
+                        "A task can only have one awaitable"};
+            }
+            auto const done = has_value.exchange(false);
+            if (done) {
+                std::cout << "Value arrived when setting signal" << std::endl;
+                continuation_if_not_run();
+            }
+        }
+        void value_has_been_set() {
+            std::cout << "Value has been set" << std::endl;
+            if (has_value.exchange(true)) {
+                throw std::runtime_error{"Coroutine already had a value set"};
+            }
+            continuation_if_not_run();
+        }
+        auto initial_suspend() { return std::experimental::suspend_always{}; }
+        auto final_suspend() { return std::experimental::suspend_always{}; }
+    };
+
+    /// ## The task promise type
+    template<typename R>
+    struct promise_type : public async_promise {
+        std::variant<std::monostate, std::exception_ptr, R> value = {};
+        std::promise<R> fp = {};
+
+        task<R, promise_type> get_return_object();
+        auto return_value(R v) {
+            fp.set_value(v);
+            value = std::move(v);
+            value_has_been_set();
+            return std::experimental::suspend_never{};
+        }
+        void unhandled_exception() {
+            value = std::current_exception();
+            value_has_been_set();
+        }
+    };
+
+
     /// ## Task
     /**
      * A task whose completion can be awaited..
      */
-    template<typename R>
+    template<typename R, typename P>
     class task {
       public:
+        using promise_type = P;
+        friend promise_type;
+
         /// Not copyable
         task(task const &) = delete;
         task &operator=(task const &) = delete;
         /// Movable
         task(task &&t) : coro(t.coro) { t.coro = {}; }
         task &operator=(task &&t) { swap(coro, t.coro); }
-
-        struct promise_type {
-            std::variant<std::monostate, std::exception_ptr, R> value = {};
-            std::atomic<bool> has_value = false;
-            std::atomic<bool> started = false;
-            std::atomic<std::experimental::coroutine_handle<>> continuation = {};
-            std::promise<R> fp = {};
-
-            void continuation_if_not_run() {
-                auto h = continuation.exchange({});
-                if (h) {
-                    std::cout << "Continuation for " << this << std::endl;
-                    h.resume();
-                } else {
-                    std::cout << "No continuation to run for " << this
-                              << std::endl;
-                }
-            }
-            void signal(std::experimental::coroutine_handle<> s) {
-                auto const old = continuation.exchange(s);
-                if (old) {
-                    throw std::invalid_argument{
-                            "A task can only have one awaitable"};
-                }
-                auto const done = has_value.exchange(false);
-                if (done) {
-                    std::cout << "Value arrived when setting signal"
-                              << std::endl;
-                    continuation_if_not_run();
-                }
-            }
-            void value_has_been_set() {
-                std::cout << "Value has been set" << std::endl;
-                if (has_value.exchange(true)) {
-                    throw std::runtime_error{
-                            "Coroutine already had a value set"};
-                }
-                continuation_if_not_run();
-            }
-
-            auto get_return_object() {
-                return task<R>{std::experimental::coroutine_handle<
-                        promise_type>::from_promise(*this)};
-            }
-            auto initial_suspend() {
-                return std::experimental::suspend_always{};
-            }
-            auto return_value(R v) {
-                fp.set_value(v);
-                value = std::move(v);
-                value_has_been_set();
-                return std::experimental::suspend_never{};
-            }
-            auto final_suspend() { return std::experimental::suspend_always{}; }
-            void unhandled_exception() {
-                value = std::current_exception();
-                value_has_been_set();
-            }
-        };
 
         std::experimental::coroutine_handle<> handle() const { return coro; }
 
@@ -159,4 +168,13 @@ namespace f5::makham {
     };
 
 
+}
+
+
+template<typename R>
+inline auto f5::makham::promise_type<R>::get_return_object()
+        -> task<R, promise_type> {
+    return task<R, promise_type<R>>{
+            std::experimental::coroutine_handle<promise_type<R>>::from_promise(
+                    *this)};
 }
