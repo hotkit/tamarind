@@ -1,25 +1,2 @@
 2019-11-21  Kirit Sælensminde  <kirit@felspar.com>
  Complete project reset. The old version will live on in the "legacy" branch.
-
-2016-04-24  Kirit Sælensminde  <kirit@felspar.com>
- Initial ideas for multi-threaded FRP using Boost ASIO reactor pools.
-
-2016-03-11  Kirit Sælensminde  <kirit@felspar.com>
- Implement the correct fix for the garbage collection of dead stream dependencies.
-
-2016-03-10  Kirit Sælensminde  <kirit@felspar.com>
- Fix a bug where changes in the FRP graph would cause crashes in feedback cycles.
-
-2016-02-18  Kirit Sælensminde  <kirit@felspar.com>
- Allow initialisation of a stream through a `unique_ptr`. This will get changed to a nicer syntax.
-
-2016-02-17  Kirit Sælensminde  <kirit@felspar.com>
- Stream JavaScript binding names are now generated from the typeid of the streams.
- All call backs now receive the value parameter as a `const &`.
-
-2016-02-12  Kirit Sælensminde  <kirit@felspar.com>
- Implement stream filtering using `on(...).when` and `on(...).when_not`.
- Implement binary stream merging with a transformation lambda.
-
-2016-02-11  Kirit Sælensminde  <kirit@felspar.com>
- Implement initial Emscripten bindings.
