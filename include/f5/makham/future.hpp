@@ -55,19 +55,18 @@ namespace f5::makham {
             auto final_suspend() { return std::experimental::suspend_always{}; }
         };
 
-        R get() {
-            f5::makham::post([this]() {
-                std::cout << "Starting future " << &coro.promise() << std::endl;
-                coro.resume();
-            });
-            return coro.promise().fp.get_future().get();
-        }
+        R get() { return coro.promise().fp.get_future().get(); }
 
       private:
         friend promise_type;
         typename promise_type::handle_type coro;
 
-        future(typename promise_type::handle_type h) : coro(h) {}
+        future(typename promise_type::handle_type h) : coro(h) {
+            f5::makham::post([this]() {
+                std::cout << "Starting future " << &coro.promise() << std::endl;
+                coro.resume();
+            });
+        }
     };
 
 
