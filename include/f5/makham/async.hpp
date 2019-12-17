@@ -12,7 +12,6 @@
 #include <f5/makham/executor.hpp>
 
 #include <experimental/coroutine>
-#include <future>
 #include <iostream>
 #include <optional>
 #include <variant>
@@ -80,10 +79,6 @@ namespace f5::makham {
                 });
             }
         }
-        auto as_future() {
-            start();
-            return coro.promise().fp.get_future();
-        }
 
         /// ### Awaitable
         bool await_ready() const { return false; }
@@ -150,13 +145,11 @@ namespace f5::makham {
                 std::experimental::coroutine_handle<promise_type<R>>;
 
         std::variant<std::monostate, std::exception_ptr, R> value = {};
-        std::promise<R> fp = {};
 
         auto get_return_object() {
             return async_type{handle_type::from_promise(*this)};
         }
         auto return_value(R v) {
-            fp.set_value(v);
             value = std::move(v);
             value_has_been_set();
             return std::experimental::suspend_never{};

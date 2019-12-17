@@ -1,6 +1,7 @@
 add_library(makham-headers-tests STATIC EXCLUDE_FROM_ALL
         async.cpp
         executor.cpp
+        future.cpp
         task.cpp
         unit.cpp
     )
