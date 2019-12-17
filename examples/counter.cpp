@@ -25,7 +25,7 @@ namespace {
 }
 
 
-FSL_MAIN("counter", "Tamarind counter examples")
+FSL_MAIN("counter", "Makham counter examples")
 (fostlib::ostream &out, fostlib::arguments &) {
     counter c1;
     return 0;
