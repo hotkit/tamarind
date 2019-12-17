@@ -91,17 +91,7 @@ namespace f5::makham {
             start();
             coro.promise().signal(awaiting);
         }
-        R await_resume() {
-            auto &p = coro.promise();
-            return apply_visitor(
-                    std::move(p.value),
-                    [](std::monostate) -> R {
-                        throw std::runtime_error(
-                                "The coroutine doesn't have a value");
-                    },
-                    [](std::exception_ptr e) -> R { std::rethrow_exception(e); },
-                    [](R v) { return v; });
-        }
+        R await_resume() { return coro.promise().get_value(); }
 
       private:
         using handle_type = std::experimental::coroutine_handle<promise_type>;
@@ -174,6 +164,42 @@ namespace f5::makham {
         void unhandled_exception() {
             value = std::current_exception();
             value_has_been_set();
+        }
+
+        R get_value() {
+            return apply_visitor(
+                    std::move(value),
+                    [](std::monostate) -> R {
+                        throw std::runtime_error(
+                                "The coroutine doesn't have a value");
+                    },
+                    [](std::exception_ptr e) -> R { std::rethrow_exception(e); },
+                    [](R v) { return v; });
+        }
+    };
+
+    template<>
+    struct promise_type<void> : public async_promise {
+        using async_type = async<void, promise_type<void>>;
+        using handle_type =
+                std::experimental::coroutine_handle<promise_type<void>>;
+
+        std::exception_ptr value;
+
+        auto get_return_object() {
+            return async_type{handle_type::from_promise(*this)};
+        }
+        auto return_void() {
+            value_has_been_set();
+            return std::experimental::suspend_never{};
+        }
+        void unhandled_exception() {
+            value = std::current_exception();
+            value_has_been_set();
+        }
+
+        void get_value() {
+            if (value) std::rethrow_exception(value);
         }
     };
 

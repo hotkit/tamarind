@@ -35,7 +35,7 @@ namespace f5::tamarind {
         ~runtime();
 
         /// ## Script loading and starts
-        makham::async<f5::u8string> load(fostlib::fs::path);
+        makham::async<void> load(fostlib::fs::path);
     };
 
 

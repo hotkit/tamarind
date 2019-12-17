@@ -8,7 +8,7 @@
 FSL_MAIN("tamarind", "Tamarind runtime")
 (fostlib::ostream &out, fostlib::arguments &args) {
     f5::tamarind::runtime rt;
-    f5::makham::unit<f5::u8string> loaders;
+    f5::makham::unit<void> loaders;
     for (auto const &arg : args) {
         loaders.add(rt.load(fostlib::coerce<fostlib::fs::path>(arg)));
     }
