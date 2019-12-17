@@ -9,7 +9,7 @@
 #pragma once
 
 
-#include <f5/makham/task.hpp>
+#include <f5/makham/async.hpp>
 #include <f5/tamarind/workflow.hpp>
 
 #include <fost/core>
@@ -35,7 +35,7 @@ namespace f5::tamarind {
         ~runtime();
 
         /// ## Script loading and starts
-        makham::task<f5::u8string> load(fostlib::fs::path);
+        makham::async<f5::u8string> load(fostlib::fs::path);
     };
 
 

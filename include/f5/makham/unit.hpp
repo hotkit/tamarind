@@ -9,7 +9,7 @@
 #pragma once
 
 
-#include <f5/makham/task.hpp>
+#include <f5/makham/async.hpp>
 
 #include <vector>
 
@@ -22,10 +22,10 @@ namespace f5::makham {
      */
     template<typename R>
     class unit {
-        std::vector<task<R>> resumables;
+        std::vector<async<R>> resumables;
 
       public:
-        void add(task<R> r) { resumables.push_back(std::move(r)); }
+        void add(async<R> r) { resumables.push_back(std::move(r)); }
         std::size_t block();
     };
 
@@ -35,15 +35,15 @@ namespace f5::makham {
 
 template<typename R>
 inline std::size_t f5::makham::unit<R>::block() {
-    auto t = [this]() -> task<std::size_t> {
+    auto t = [this]() -> async<std::size_t> {
         std::cout << "Starting to resume " << resumables.size() << " coroutines"
                   << std::endl;
         /// Start every resumable as separate tasks
-        for (auto &t : resumables) { t.start_async(); }
+        for (auto &t : resumables) { t.start(); }
         /// Wait for them all to finish
         std::size_t count{};
         for (auto &t : resumables) {
-            std::cout << "Awating task" << std::endl;
+            std::cout << "Awating async" << std::endl;
             co_await t;
             ++count;
         }
