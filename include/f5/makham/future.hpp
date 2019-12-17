@@ -32,7 +32,7 @@ namespace f5::makham {
         future(future &&t) noexcept : coro(t.coro) { t.coro = {}; }
         future &operator=(future &&t) noexcept { swap(coro, t.coro); }
 
-        struct promise_type {
+        struct promise_type final {
             using handle_type =
                     std::experimental::coroutine_handle<promise_type>;
 

@@ -139,7 +139,7 @@ namespace f5::makham {
 
     /// ## The async promise type
     template<typename R>
-    struct promise_type : public async_promise {
+    struct promise_type final : public async_promise {
         using async_type = async<R, promise_type<R>>;
         using handle_type =
                 std::experimental::coroutine_handle<promise_type<R>>;
@@ -172,7 +172,7 @@ namespace f5::makham {
     };
 
     template<>
-    struct promise_type<void> : public async_promise {
+    struct promise_type<void> final : public async_promise {
         using async_type = async<void, promise_type<void>>;
         using handle_type =
                 std::experimental::coroutine_handle<promise_type<void>>;
