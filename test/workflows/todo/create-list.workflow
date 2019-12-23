@@ -9,4 +9,5 @@ list = PUT "https://todo/${user}/${todo.slug}" 200:
         {},
         {}]}
 await list:
-    exit
+    goto view-todo-list {"slug": ${todo.slug},
+        "todo": ${todo}}
