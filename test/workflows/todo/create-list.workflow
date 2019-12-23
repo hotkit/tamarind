@@ -9,5 +9,8 @@ list = PUT "https://todo/${user}/${todo.slug}" 200:
         {},
         {}]}
 await list:
-    goto view-todo-list {"slug": ${todo.slug},
-        "todo": ${todo}}
+    # Below needs to be `"todo": ${todo}`
+    goto view-todo-list {
+        "user": "${user}",
+        "slug": "${todo.slug}",
+        "todo": "${todo}"}
